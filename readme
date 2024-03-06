@@ -1,0 +1,187 @@
+1 usb speaker
+2 git setup
+3 wifi setup
+4 node setup
+5 pythgon setup
+6 ffmpeg command
+7 boot script
+8 adxl
+9 sleep disable
+
+# usb speaker
+sudo apt-get update
+sudo apt-get install alsa-utils
+sudo nano /usr/share/alsa/alsa.conf
+defaults.ctl.card 1
+defaults.pcm.card 1
+
+
+# git setup
+sudo apt-get update
+sudo apt-get install git
+git init
+git remote add origin https://github.com/Amit-Agrawal0177/mole_raspberry_firmware.git
+git pull origin develop
+
+
+
+#node setup
+sudo apt-get install nodejs npm
+
+
+#python setup
+pre installed
+
+
+#ffmpeg command
+sudo apt-get install ffmpeg
+
+
+#adxl345
+pip3 install adafruit-circuitpython-adxl34x
+
+
+#sleep mode
+rascpi configuration screen blanking off
+
+
+#boot script
+[Unit]
+Description=My Script Service
+
+[Service]
+User=officemole
+ExecStartPre=/bin/sleep 5
+WorkingDirectory=/home/officemole/Downloads/mole_fm
+ExecStart=/usr/bin/node /home/officemole/Downloads/mole_fm/index.js
+
+[Install]
+WantedBy=multi-user.target
+
+sudo nano /etc/systemd/system/myservice.service
+sudo systemctl daemon-reload
+sudo systemctl enable myservice.service
+sudo systemctl enable myservice.service
+
+
+#install mqtt
+pip install paho-mqtt==1.6.1
+pydub
+pip install pydub
+
+
+#hostspod
+sudo apt-get update
+sudo apt-get install hostapd dnsmasq
+
+sudo nano /etc/dhcpcd.conf
+interface wlan0
+static ip_address=192.168.1.1/24
+nohook wpa_supplicant
+
+sudo nano /etc/hostapd/hostapd.conf
+interface=wlan0
+ssid=mole
+hw_mode=g
+channel=7
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=OEPP0004
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+
+
+sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+sudo nano /etc/dnsmasq.conf
+interface=wlan0
+dhcp-range=192.168.1.2,192.168.1.20,255.255.255.0,24h
+
+
+sudo systemctl unmask hostapd
+
+sudo systemctl start hostapd
+sudo systemctl start dnsmasq
+sudo systemctl enable hostapd
+sudo systemctl enable dnsmasq
+
+sudo apt-get install sqlite3
+sqlite3 mole.db
+
+CREATE TABLE IF NOT EXISTS config (
+    id INTEGER PRIMARY KEY,
+    url TEXT,
+    topic TEXT,
+    user TEXT,
+    password TEXT,
+    port INTEGER,
+    broker_address TEXT,
+    recording_path TEXT,
+    movement_path TEXT,
+    fps INTEGER,
+    buffer_time INTEGER,
+    height INTEGER,
+    width INTEGER,
+    location_publish_interval INTEGER,
+    accel_thr INTEGER,
+    duration INTEGER,
+    ameba_mac TEXT
+);
+
+INSERT INTO config ( url, user, password, broker_address,  topic,  port,  recording_path,  movement_path,  fps,  buffer_time,  height,  width,  location_publish_interval,  accel_thr,  duration,  ameba_mac) 
+VALUES ("molertmp.9930i.com", "mole", "Team@9930i", "mole_mq.9930i.com",  "4",  27189,  "recordings",  "movement",  20,  30,  480,  640,  10,  2,  300,  "54:f2:9f:51:68:d8");
+
+CREATE TABLE stat (
+  id INTEGER PRIMARY KEY,
+  demand_mode TEXT,
+  nw_strength TEXT,
+  pir_status TEXT,
+  adxl_status TEXT,
+  stream_status TEXT,
+  alert_mode TEXT,
+  audio_flag TEXT,
+  lat REAL,
+  long REAL,
+  x_axis REAL,
+  y_axis REAL,
+  z_axis REAL,
+  timestamp TEXT,
+  ver TEXT
+);
+
+INSERT INTO stat (  demand_mode,  nw_strength,  pir_status,  adxl_status,  stream_status,  alert_mode,  audio_flag,  lat,  long,  x_axis,  y_axis,  z_axis,  timestamp,  ver) 
+VALUES (  "0",  "30",  "0",  "1",  "0",  "1",  "0",  22.68637755,  75.8600462,  -1.569064,  0.0,  -7.8845466,  "2024-03-05 12:01:20",  "1");
+
+CREATE TABLE output (
+  demand_mode TEXT,
+  nw_strength TEXT,
+  pir_status TEXT,
+  adxl_status TEXT,
+  stream_status TEXT,
+  alert_mode TEXT,
+  audio_flag TEXT,
+  lat REAL,
+  long REAL,
+  x_axis REAL,
+  y_axis REAL,
+  z_axis REAL,
+  timestamp TEXT,
+  ver TEXT
+);
+
+
+'''update stat set demand_mode = 1 where id = 1;'''
+
+
+
+
+
+
+
+
+
+
+
+
