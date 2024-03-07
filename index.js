@@ -2,65 +2,6 @@ const { spawn } = require('child_process');
 const pythonOptions = { env: { PYTHONUNBUFFERED: '1' } };
 const { exec } = require('child_process');
 const NodeMediaServer = require('node-media-server');
-/*
-function checkInternet() {
-  return new Promise((resolve, reject) => {
-    exec('ping -c 1 google.com', (error, stdout, stderr) => {
-      if (error) {
-        reject(stderr || error);  // Capture error output
-        return;
-      }
-
-      // Check if the ping was successful
-      const isOnline = stdout.includes('1 packets transmitted, 1 received');
-      resolve(isOnline);
-    });
-  });
-}
-
-function checkInternetDNS() {
-  return new Promise((resolve) => {
-    require('dns').resolve('www.google.com', function (err) {
-      resolve(!err); // Resolve to true if DNS resolution succeeds, indicating internet connectivity
-    });
-  });
-}
-
-async function waitForInternet() {
-  while (true) {
-    try {
-      const online = await checkInternetDNS(); // Use DNS resolution for internet connectivity check
-
-      if (online) 
-      {
-        console.log('Internet is present.');
-
-        break; 
-      }
-
-      console.log('Internet is not present. Waiting for it to become available...');
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds before checking again
-    } catch (error) {
-      console.error('Error checking internet connectivity:', error);
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds before checking again in case of an error
-    }
-  }
-}
-
-waitForInternet();
-* 
-* 
-  //streamingLocal();
-  //savingVideo();
-  //localDirAccess();
-  //sendGpsData();
-  * 
-*/
-//sudo systemctl daemon-reload
-//sudo systemctl start myscript.service
-//sudo systemctl enable myscript.service
-//sudo systemctl status myscript.service
-
 
 const config = {
   rtmp: {

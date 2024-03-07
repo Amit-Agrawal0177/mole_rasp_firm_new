@@ -125,7 +125,7 @@ def reboot_raspberry_pi():
 
 def ota_raspberry_pi():
     try:
-        subprocess.run(['git', 'pull', 'origin', 'develop'])
+        subprocess.run(['git', 'pull', 'origin', 'master'])
     except Exception as e:
         print(f"Error: {e}")
                     
