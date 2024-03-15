@@ -175,7 +175,7 @@ def update_prev(data):
     cursor = conn.cursor()
     sql =  f'''update stat set demand_mode = "{data["demand_mode"]}",  nw_strength = "{data["nw_strength"]}",  pir_status = "{data["pir_status"]}",  adxl_status = "{data["adxl_status"]}",  
     stream_status = "{data["stream_status"]}",  alert_mode = "{data["alert_mode"]}",  audio_flag = "{data["audio_flag"]}",  lat = {data["lat"]},  long = {data["long"]},  x_axis = {data["x_axis"]},  
-    y_axis = {data["y_axis"]},  z_axis = {data["z_axis"]},  timestamp = "{data["timestamp"]}",  ver = "{data["ver"]}", bat_vol = {data["bat_vol"]}, temp_vol = {data["temp_vol"]} where id  = 2;'''
+    y_axis = {data["y_axis"]},  z_axis = {data["z_axis"]},  timestamp = "{data["timestamp"]}",  ver = "{data["ver"]}", bat_vol = "{data["bat_vol"]}", temp_vol = "{data["temp_vol"]}" where id  = 2;'''
     #print(sql, flush=True)  
     cursor.execute(sql)
     conn.commit() 
