@@ -8,6 +8,8 @@ import sqlite3
 import RPi.GPIO as GPIO
 import busio
 import adafruit_adxl34x
+import adafruit_ads1x15.ads1115 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
 
 scl_pin = 3
 sda_pin = 2
@@ -15,6 +17,10 @@ sda_pin = 2
 i2c = busio.I2C(scl=scl_pin, sda=sda_pin)
 accelerometer = adafruit_adxl34x.ADXL345(i2c)
 accelerometer.range = adafruit_adxl34x.Range.RANGE_2_G
+
+
+i2c = busio.I2C(board.SCL, board.SDA)
+ads = ADS.ADS1115(i2c, gain=2)
 
 x1 = 0
 y1 = 0
@@ -149,8 +155,13 @@ try:
     
     while True:        
         x, y, z = accelerometer.acceleration
+        value = AnalogIn(ads, ADS.P0)
+        vol1 = value.voltage * 2
+        
+        value = AnalogIn(ads, ADS.P1)
+        vol2 = value.voltage
             
-        sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z} where id = 1;'''
+        sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z}, bat_vol = {vol1}, temp_vol = {vol2} where id = 1;'''
         cursor.execute(sql)                        
         conn.commit()
         cTime = datetime.now()

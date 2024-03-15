@@ -173,9 +173,10 @@ CREATE TABLE output (
 
 
 '''update stat set demand_mode = 1 where id = 1;'''
+pip install adafruit-circuitpython-ads1x15
 
-
-
+ALTER TABLE stat ADD COLUMN bat_vol REAL, ADD COLUMN ther REAL;
+ALTER TABLE output ADD COLUMN bat_vol REAL, ADD COLUMN ther REAL;
 
 
 
