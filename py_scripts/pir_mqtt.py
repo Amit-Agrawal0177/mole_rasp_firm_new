@@ -91,7 +91,7 @@ allot_ip = ip[0]
 try:
     #GPIO.output(output_pin, GPIO.HIGH)
 
-    start_time = None
+    start_time = time.time()
     recording = False
     out = None
     chunk_start_time = time.time()
