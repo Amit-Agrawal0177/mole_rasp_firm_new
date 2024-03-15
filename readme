@@ -178,10 +178,16 @@ pip install adafruit-circuitpython-ads1x15
 ALTER TABLE stat ADD COLUMN bat_vol REAL, ADD COLUMN ther REAL;
 ALTER TABLE output ADD COLUMN bat_vol REAL, ADD COLUMN ther REAL;
 
+ALTER TABLE stat
+ADD COLUMN bat_vol REAL;
+ALTER TABLE stat
+ADD COLUMN temp_vol REAL;
 
 
-
-
+ALTER TABLE output
+ADD COLUMN bat_vol REAL;
+ALTER TABLE output
+ADD COLUMN temp_vol REAL;
 
 
 
