@@ -257,13 +257,13 @@ def main():
                 flag2 = 0
                 flag3 = 1
                 flag4 = 0
-                push_interval = 120
+                push_interval = 10
                 data_timer = current_time + push_interval
-                save_timer = save_time + 60
+                save_timer = save_time + 10
                 
             save_time = time.time()
             if save_time >= save_timer:
-                save_timer = save_time + 60                
+                save_timer = save_time + 10                
                 update_output(json_data)
             
         elif json_data["demand_mode"] == "0" and json_data["adxl_status"] == "0":
