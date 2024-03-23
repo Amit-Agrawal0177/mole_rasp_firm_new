@@ -64,9 +64,11 @@ def on_publish_location():
         
         latitude = ""
         longitude = ""
+        output_lat = 0 
+        output_long = 0
         
         values = response.strip().split(',')
-        if len(response) > 15:
+        if len(response) > 30:
             latitude = values[0]
             longitude = values[2]
             latitude = latitude.replace("+CGPSINFO: ", "")
