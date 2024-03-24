@@ -137,6 +137,7 @@ def on_disconnect(client, userdata, rc):
         print(f"Unexpected disconnection. Publishing will message. stream mqtt stop", flush=True)
         publish_mqtt(f'R/{topic}', json.dumps({"status": "device disconnected"}))
         GPIO.output(output_pin, GPIO.LOW)
+        reboot_raspberry_pi()
         #stop_streaming()
 
 def on_connect(client, userdata, flags, rc):
