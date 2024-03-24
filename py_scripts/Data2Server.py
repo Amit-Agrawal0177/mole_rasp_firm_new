@@ -47,7 +47,7 @@ broker_address = config_data['broker_address']
 allot_ip = ""
 
 def on_message(client, userdata, msg):
-    global process
+    global process, data_flag
     global last_message_time, last_demand_message_time
     conn = sqlite3.connect('mole.db')
     cursor = conn.cursor()
@@ -75,6 +75,7 @@ def on_message(client, userdata, msg):
                     conn.commit()
                     
                     publish_mqtt(f'R/{topic}', json.dumps({"event": "demand mode started"}))
+                    data_flag = 1
                     last_demand_message_time = time.time()                    
                             
                 elif instruction == "start alert mode":
@@ -82,15 +83,18 @@ def on_message(client, userdata, msg):
                     cursor.execute(sql)
                     conn.commit()
                     publish_mqtt(f'R/{topic}', json.dumps({"event": "alert mode started"}))
+                    data_flag = 1
                             
                 elif instruction == "stop alert mode":
                     sql = '''update stat set alert_mode = "0" where id = 1;'''
                     cursor.execute(sql)
                     conn.commit()
                     publish_mqtt(f'R/{topic}', json.dumps({"event": "alert mode stopped"}))
+                    data_flag = 1
                     
                 elif instruction == "start reboot":
                     publish_mqtt(f'R/{topic}', json.dumps({"event": "reboot mode started"}))
+                    data_flag = 1
                     reboot_raspberry_pi()
                     
                 elif instruction == "start streaming":
@@ -98,6 +102,7 @@ def on_message(client, userdata, msg):
                     cursor.execute(sql)
                     conn.commit()
                     publish_mqtt(f'R/{topic}', json.dumps({"event": "stream mode started"}))
+                    data_flag = 1
                     last_message_time = time.time()
                     
                 elif instruction == "start ota":
@@ -190,9 +195,10 @@ flag3 = 0
 flag4 = 0
 current_time = time.time()
 save_time = time.time()
+data_flag = 0
 
 def main():
-    global data_timer, push_interval, flag1, flag2, flag3, flag4, current_time, last_demand_message_time, last_message_time, save_time
+    global data_timer, push_interval, flag1, flag2, flag3, flag4, current_time, last_demand_message_time, last_message_time, save_time, data_flag
 
     conn = sqlite3.connect('mole.db')
     cursor = conn.cursor()
@@ -215,15 +221,19 @@ def main():
         
         if json_data["adxl_status"] == "0" and prev_data["adxl_status"] == "1":
             publish_mqtt(f'R/{topic}', json.dumps({"event": "adxl movement stopped"}))
+            data_flag = 1
             
         if json_data["adxl_status"] == "1" and prev_data["adxl_status"] == "0":
             publish_mqtt(f'R/{topic}', json.dumps({"event": "adxl movement started"}))
+            data_flag = 1
             
         if json_data["pir_status"] == "0" and prev_data["pir_status"] == "1":
             publish_mqtt(f'R/{topic}', json.dumps({"event": "pir movement stopped"}))
+            data_flag = 1
             
         if json_data["pir_status"] == "1" and prev_data["pir_status"] == "0":
-            publish_mqtt(f'R/{topic}', json.dumps({"event": "pir movement started"}))            
+            publish_mqtt(f'R/{topic}', json.dumps({"event": "pir movement started"}))  
+            data_flag = 1          
             
         if json_data["demand_mode"] == "1" and json_data["adxl_status"] == "1":
             if flag1 == 0:
@@ -293,7 +303,8 @@ def main():
         columns = [description[0] for description in cursor.description]
         existing_data = [dict(zip(columns, row)) for row in results] 
         
-        if current_time >= data_timer:
+        if current_time >= data_timer or data_flag == 1:
+            data_flag = 0
             publish_mqtt(f'R/{topic}', json.dumps(existing_data))
             sql = '''delete from output;'''
             cursor.execute(sql)
