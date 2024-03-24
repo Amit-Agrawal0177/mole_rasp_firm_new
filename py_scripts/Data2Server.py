@@ -320,6 +320,7 @@ def main():
                 cursor.execute(sql)
                 conn.commit()
                 publish_mqtt(f'R/{topic}', json.dumps({"event": "stream mode stopped"}))
+                data_flag = 1
         
         if time.time() - last_demand_message_time > 30:
             if json_data["demand_mode"] == "1":
@@ -327,6 +328,7 @@ def main():
                 cursor.execute(sql)
                 conn.commit()                
                 publish_mqtt(f'R/{topic}', json.dumps({"event": "demand mode stopped"}))
+                data_flag = 1
                 
         time.sleep(10)
 
