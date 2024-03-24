@@ -294,6 +294,9 @@ def main():
 
         else :
             update_output(json_data)
+            
+        if data_flag == 1:
+            update_output(json_data)
 
         current_time = time.time()
         
