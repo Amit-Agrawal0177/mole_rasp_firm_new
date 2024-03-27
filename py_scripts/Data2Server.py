@@ -37,7 +37,7 @@ config_data = dict(zip(columns, results[0]))
 
 sql = f'''update stat set ver = {version} where id = 1; '''
 cursor.execute(sql)
-
+conn.commit()
 conn.close()
 
 url = config_data['url']
