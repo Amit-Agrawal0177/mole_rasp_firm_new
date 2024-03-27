@@ -184,8 +184,7 @@ ALTER TABLE stat
 ADD COLUMN temp_vol REAL;
 
 
-ALTER TABLE output
-ADD COLUMN bat_vol REAL;
+ALTER TABLE output ADD COLUMN power_vol REAL;
 ALTER TABLE output
 ADD COLUMN temp_vol REAL;
 

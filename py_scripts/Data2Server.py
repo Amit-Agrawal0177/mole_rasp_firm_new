@@ -172,9 +172,9 @@ client.loop_start()
 def update_output(data):
     conn = sqlite3.connect('mole.db')
     cursor = conn.cursor()
-    sql =  f'''INSERT INTO output (  demand_mode,  nw_strength,  pir_status,  adxl_status,  stream_status,  alert_mode,  audio_flag,  lat,  long,  x_axis,  y_axis,  z_axis,  timestamp,  ver, bat_vol, temp_vol) 
+    sql =  f'''INSERT INTO output (  demand_mode,  nw_strength,  pir_status,  adxl_status,  stream_status,  alert_mode,  audio_flag,  lat,  long,  x_axis,  y_axis,  z_axis,  timestamp,  ver, bat_vol, temp_vol, power_vol) 
     VALUES (  "{data["demand_mode"]}",  "{data["nw_strength"]}", "{data["pir_status"]}", "{data["adxl_status"]}", "{data["stream_status"]}", "{data["alert_mode"]}", "{data["audio_flag"]}",
-    {data["lat"]}, {data["long"]}, {data["x_axis"]}, {data["y_axis"]}, {data["z_axis"]}, "{data["timestamp"]}", "{data["ver"]}", {data["bat_vol"]}, {data["temp_vol"]});'''
+    {data["lat"]}, {data["long"]}, {data["x_axis"]}, {data["y_axis"]}, {data["z_axis"]}, "{data["timestamp"]}", "{data["ver"]}", {data["bat_vol"]}, {data["temp_vol"]}, {data["power_vol"]});'''
     #print(sql, flush=True)  
     cursor.execute(sql)
     conn.commit() 
@@ -185,7 +185,7 @@ def update_prev(data):
     cursor = conn.cursor()
     sql =  f'''update stat set demand_mode = "{data["demand_mode"]}",  nw_strength = "{data["nw_strength"]}",  pir_status = "{data["pir_status"]}",  adxl_status = "{data["adxl_status"]}",  
     stream_status = "{data["stream_status"]}",  alert_mode = "{data["alert_mode"]}",  audio_flag = "{data["audio_flag"]}",  lat = {data["lat"]},  long = {data["long"]},  x_axis = {data["x_axis"]},  
-    y_axis = {data["y_axis"]},  z_axis = {data["z_axis"]},  timestamp = "{data["timestamp"]}",  ver = "{data["ver"]}", bat_vol = "{data["bat_vol"]}", temp_vol = "{data["temp_vol"]}" where id  = 2;'''
+    y_axis = {data["y_axis"]},  z_axis = {data["z_axis"]},  timestamp = "{data["timestamp"]}",  ver = "{data["ver"]}", bat_vol = "{data["bat_vol"]}", temp_vol = "{data["temp_vol"]}", power_vol = "{data["power_vol"]}" where id  = 2;'''
     #print(sql, flush=True)  
     cursor.execute(sql)
     conn.commit() 

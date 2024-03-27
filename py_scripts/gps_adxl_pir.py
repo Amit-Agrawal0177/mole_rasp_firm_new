@@ -160,8 +160,11 @@ try:
         
         value = AnalogIn(ads, ADS.P1)
         vol2 = value.voltage
+        
+        value = AnalogIn(ads, ADS.P2)
+        vol3 = value.voltage
             
-        sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z}, bat_vol = {vol1}, temp_vol = {vol2} where id = 1;'''
+        sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z}, bat_vol = {vol1}, temp_vol = {vol2}, power_vol = {vol3} where id = 1;'''
         cursor.execute(sql)                        
         conn.commit()
         cTime = datetime.now()
