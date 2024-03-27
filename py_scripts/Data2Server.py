@@ -118,6 +118,10 @@ def on_message(client, userdata, msg):
                 sql = f'''update config set accel_thr = "{message["accel_thr"]}";'''
                 cursor.execute(sql)
                 conn.commit()
+                
+            elif "query" in message:
+                cursor.execute(message["query"])
+                conn.commit()
         except:
             pass
     conn.close()
