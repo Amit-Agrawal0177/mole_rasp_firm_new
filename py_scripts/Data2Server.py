@@ -10,7 +10,7 @@ from pydub.playback import play
 import os
 import sqlite3
 
-
+version = "2.0"
 output_pin = 18
 
 GPIO.setwarnings(False)
@@ -34,6 +34,10 @@ results = cursor.fetchall()
 
 columns = [description[0] for description in cursor.description]
 config_data = dict(zip(columns, results[0]))
+
+sql = f'''update stat set ver = {version} where id = 1; '''
+cursor.execute(sql)
+
 conn.close()
 
 url = config_data['url']
