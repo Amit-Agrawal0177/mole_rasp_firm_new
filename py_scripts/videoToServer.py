@@ -22,12 +22,12 @@ upload_url = 'https://moleapi.9930i.com/s3/uploadFile'
 
 def send_video(file_path):
     try:
-        # sql = '''select * from stat order by id; '''
-        # cursor.execute(sql)
-        # results = cursor.fetchall()
+        sql = '''select * from stat order by id; '''
+        cursor.execute(sql)
+        results = cursor.fetchall()
         
-        # columns = [description[0] for description in cursor.description]
-        # json_data = dict(zip(columns, results[0]))
+        columns = [description[0] for description in cursor.description]
+        json_data = dict(zip(columns, results[0]))
         
         data = {'device_id': topic, 'type': "movement", 'lat' : "1", 'long': "2"}
         files = {'file': open(file_path, 'rb')}
