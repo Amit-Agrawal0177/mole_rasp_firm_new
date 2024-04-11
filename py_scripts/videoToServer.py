@@ -14,7 +14,6 @@ results = cursor.fetchall()
 
 columns = [description[0] for description in cursor.description]
 config_data = dict(zip(columns, results[0]))
-conn.close()
 
 topic = config_data['topic']
 movement_folder = config_data['movement_path']
@@ -26,10 +25,10 @@ def send_video(file_path):
         cursor.execute(sql)
         results = cursor.fetchall()
         
-        # columns = [description[0] for description in cursor.description]
-        # json_data = dict(zip(columns, results[0]))
+        columns = [description[0] for description in cursor.description]
+        json_data = dict(zip(columns, results[0]))
         
-        data = {'device_id': topic, 'type': "movement", 'lat' : "3", 'long': "4"}
+        data = {'device_id': topic, 'type': "movement", 'lat' : json_data["lat"], 'long': json_data["long"]}
         files = {'file': open(file_path, 'rb')}
         response = requests.post(upload_url, files=files, data=data)
 
@@ -68,3 +67,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    conn.close()
