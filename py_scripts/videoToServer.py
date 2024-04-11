@@ -26,10 +26,10 @@ def send_video(file_path):
         cursor.execute(sql)
         results = cursor.fetchall()
         
-        columns = [description[0] for description in cursor.description]
-        json_data = dict(zip(columns, results[0]))
+        # columns = [description[0] for description in cursor.description]
+        # json_data = dict(zip(columns, results[0]))
         
-        data = {'device_id': topic, 'type': "movement", 'lat' : "1", 'long': "2"}
+        data = {'device_id': topic, 'type': "movement", 'lat' : "3", 'long': "4"}
         files = {'file': open(file_path, 'rb')}
         response = requests.post(upload_url, files=files, data=data)
 
