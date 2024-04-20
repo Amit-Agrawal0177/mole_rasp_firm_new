@@ -6,6 +6,14 @@ import re
 import signal
 from pydub import AudioSegment
 import sqlite3
+import RPi.GPIO as GPIO
+
+speaker_control = 4
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(speaker_control, GPIO.OUT)
+GPIO.output(speaker_control, GPIO.LOW)
 
 conn = sqlite3.connect('mole.db')
 cursor = conn.cursor()    
@@ -91,11 +99,15 @@ while True:
     time.sleep(1)
     
     if json_data["audio_flag"] == "1":
+        GPIO.output(speaker_control, GPIO.HIGH)
         print(f"Start playing audio", flush=True)
+        time.sleep(0.5)
+        
         play_via_file()
         
         sql = '''update stat set audio_flag = "0" where id = 1;'''
         cursor.execute(sql)
         conn.commit()
+        GPIO.output(speaker_control, GPIO.LOW)
 
 conn.close()
