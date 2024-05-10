@@ -4,8 +4,8 @@ import time
 import subprocess
 import re
 import signal
-
 import sqlite3
+import RPi.GPIO as GPIO
 
 conn = sqlite3.connect('mole.db')
 cursor = conn.cursor()    
@@ -24,6 +24,11 @@ topic = config_data['topic']
 rtmp_url = f'rtmp://{url}/live/{topic}'
 allot_ip = ""
 
+output_pin = 27
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(output_pin, GPIO.OUT)
         
 def get_ips_for_mac(target_mac, arp_output):
     pattern = re.compile(r"(\S+) \((\d+\.\d+\.\d+\.\d+)\) at (\S+)")
@@ -65,11 +70,13 @@ def start_streaming():
         command = 'ffmpeg -i rtsp://' + allot_ip + ' -c:v copy -c:a aac -strict experimental -f flv ' + rtmp_url
         process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
         print(f"Starting streaming: {process.pid} {command}", flush=True)
+        GPIO.output(output_pin, GPIO.HIGH)
 
 def stop_streaming():
     global process
     if process is not None and process.poll() is None:
         print(f"Stopping streaming.{process.pid}", flush=True)
+        GPIO.output(output_pin, GPIO.LOW)
         os.killpg(os.getpgid(process.pid), signal.SIGTERM)
         process.wait()
         process = None
