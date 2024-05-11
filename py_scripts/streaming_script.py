@@ -69,8 +69,7 @@ def start_streaming():
     if process is None or process.poll() is not None:                            
         command = 'ffmpeg -i rtsp://' + allot_ip + ' -c:v copy -c:a aac -strict experimental -f flv ' + rtmp_url
         process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
-        print(f"Starting streaming: {process.pid} {command}", flush=True)
-        GPIO.output(output_pin, GPIO.HIGH)
+        print(f"Starting streaming: {process.pid} {command}", flush=True)        
 
 def stop_streaming():
     global process
@@ -106,7 +105,7 @@ while True:
     if json_data["stream_status"] == "1":
         print(f"Starting streaming", flush=True)
         start_streaming()
-        
+        GPIO.output(output_pin, GPIO.HIGH)
     else:
         stop_streaming()
 

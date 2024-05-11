@@ -158,6 +158,8 @@ try:
                     #publish_mqtt(f'R/{topic}', json.dumps({"status": "movement stop"}))
                     recording = False
                     chunk_start_time = time.time()
+        elif json_data["stream_status"] == "1":
+            pass
         else:
             GPIO.output(output_pin, GPIO.LOW)
 
