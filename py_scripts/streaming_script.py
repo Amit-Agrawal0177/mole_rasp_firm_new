@@ -83,8 +83,8 @@ def stop_streaming(json_data):
 
 
 
-ip = find_ip_with_retry(mac)
-allot_ip = ip[0]
+# ip = find_ip_with_retry(mac)
+# allot_ip = ip[0]
    
 
 process = None

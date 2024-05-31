@@ -85,8 +85,8 @@ def find_ip_with_retry(target_mac):
     print(f"Unable to find IP addresses for MAC address {target_mac} after {max_retries} retries.", flush=True)
     return []
 
-ip = find_ip_with_retry(mac)
-allot_ip = ip[0]
+# ip = find_ip_with_retry(mac)
+# allot_ip = ip[0]
 
 try:
     #GPIO.output(output_pin, GPIO.HIGH)
