@@ -127,6 +127,9 @@ try:
                 if not recording:
                     print("Starting to record...", flush=True)
                     #publish_mqtt(f'R/{topic}', json.dumps({"status": "movement start"}))
+                    ip = find_ip_with_retry(mac)
+                    allot_ip = ip[0]
+                    
                     recording = True
                     start_time = time.time()
                     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

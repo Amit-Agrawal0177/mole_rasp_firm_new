@@ -105,6 +105,8 @@ while True:
     
     if json_data["stream_status"] == "1":
         print(f"Starting streaming", flush=True)
+        ip = find_ip_with_retry(mac)
+        allot_ip = ip[0]
         start_streaming()
         GPIO.output(output_pin, GPIO.HIGH)
     else:
