@@ -24,7 +24,7 @@ function startProcess() {
   fileToS3();
   saveArray();
   playAudio();
-  //networkCheck();
+  networkCheck();
 }
 
 console.log("Server Start");

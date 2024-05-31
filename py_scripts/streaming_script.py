@@ -71,14 +71,15 @@ def start_streaming():
         process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
         print(f"Starting streaming: {process.pid} {command}", flush=True)        
 
-def stop_streaming():
+def stop_streaming(json_data):
     global process
     if process is not None and process.poll() is None:
         print(f"Stopping streaming.{process.pid}", flush=True)
-        GPIO.output(output_pin, GPIO.LOW)
         os.killpg(os.getpgid(process.pid), signal.SIGTERM)
         process.wait()
         process = None
+        if json_data["pir_status"] == "0":
+            GPIO.output(output_pin, GPIO.LOW)
 
 
 
@@ -107,6 +108,6 @@ while True:
         start_streaming()
         GPIO.output(output_pin, GPIO.HIGH)
     else:
-        stop_streaming()
+        stop_streaming(json_data)
 
 conn.close()
