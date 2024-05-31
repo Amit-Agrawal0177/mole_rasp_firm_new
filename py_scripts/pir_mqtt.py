@@ -113,13 +113,13 @@ try:
         #print(json_data, flush=True)
         
     
-        if json_data["alert_mode"] == "1":
-            GPIO.output(output_pin, input_state)
+        if json_data["alert_mode"] == "1":            
 
             if input_state == GPIO.HIGH:
                 sql = f'''update stat set pir_status = "1" where id = 1;'''
                 cursor.execute(sql)                        
                 conn.commit() 
+                GPIO.output(output_pin, input_state)
                     
                 start_time = time.time()
                 pir_time = time.time()
@@ -143,10 +143,11 @@ try:
             if input_state == GPIO.LOW:
                 elapsed_time1 = time.time() - start_time
                 if elapsed_time1 >= buffer_time:
-                    GPIO.output(output_pin, GPIO.LOW)
                     sql = f'''update stat set pir_status = "0" where id = 1;'''
                     cursor.execute(sql)                        
                     conn.commit()
+                    if json_data["stream_status"] == "0":
+                        GPIO.output(output_pin, GPIO.LOW)
 
             if recording:
                 elapsed_time = time.time() - start_time
@@ -157,11 +158,7 @@ try:
                     print("Stopping recording...", flush=True)
                     #publish_mqtt(f'R/{topic}', json.dumps({"status": "movement stop"}))
                     recording = False
-                    chunk_start_time = time.time()
-        elif json_data["stream_status"] == "1":
-            pass
-        else:
-            GPIO.output(output_pin, GPIO.LOW)
+                    chunk_start_time = time.time()           
 
         current_time = time.time()
         time.sleep(2)
