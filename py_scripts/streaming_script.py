@@ -78,7 +78,7 @@ def stop_streaming(json_data):
         os.killpg(os.getpgid(process.pid), signal.SIGTERM)
         process.wait()
         process = None
-        if json_data["pir_status"] == "0":
+        if json_data["alert_mode"] == "0" or json_data["pir_status"] == "0":
             GPIO.output(output_pin, GPIO.LOW)
 
 
