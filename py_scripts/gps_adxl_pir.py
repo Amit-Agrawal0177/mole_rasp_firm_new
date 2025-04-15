@@ -248,6 +248,10 @@ try:
             location_timer = current_time + location_publish_interval
 
         time.sleep(1)
+        
+except Exception as e:
+    print(f"An error occurred: {str(e)}", flush=True)
+    publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
 
 except Exception as e:
     publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
