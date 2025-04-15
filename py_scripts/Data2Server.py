@@ -142,7 +142,7 @@ def ota_raspberry_pi():
         if result.returncode == 0:
             print("Git pull successful ✅")
             publish_mqtt(f'R/{topic}', json.dumps({"event": "sGit pull successful"}))
-            time.sleep(10)
+            time.sleep(20)
             reboot_raspberry_pi()
         else:
             print("Git pull failed ❌")
