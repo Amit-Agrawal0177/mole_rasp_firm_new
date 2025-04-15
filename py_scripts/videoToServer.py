@@ -17,7 +17,7 @@ config_data = dict(zip(columns, results[0]))
 
 topic = config_data['topic']
 movement_folder = config_data['movement_path']
-upload_url = 'https://moleapi.9930i.com/s3/uploadFile'
+upload_url = 'https://api.moleapp.co/s3/uploadFile'
 
 def send_video(file_path):
     try:

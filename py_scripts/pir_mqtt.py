@@ -36,7 +36,7 @@ chunk_duration = 60
 #rtmp_url = f'rtmp://{url}/live/{topic}'
 rtmp_url = "rtmp://localhost:1935/live"
 #rtmp_url = "rtsp://192.168.1.15"
-upload_url = 'https://moleapi.9930i.com/s3/uploadFile'
+upload_url = 'https://api.moleapp.co/s3/uploadFile'
 
 input_pin = 17
 output_pin = 27
