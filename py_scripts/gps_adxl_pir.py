@@ -11,7 +11,6 @@ import adafruit_adxl34x
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 import paho.mqtt.client as mqtt
-from zoneinfo import ZoneInfo
 
 conn = sqlite3.connect('mole.db')
 cursor = conn.cursor()    
@@ -212,7 +211,7 @@ try:
         sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z}, bat_vol = {vol1}, temp_vol = {vol2}, power_vol = {vol3} where id = 1;'''
         cursor.execute(sql)                        
         conn.commit()
-        cTime = datetime.now(ZoneInfo("Europe/London"))
+        cTime = datetime.now(timezone.utc)
         
         if (x1 - thr > x) or (x1 + thr < x) or (y1 - thr > y) or (y1 + thr < y) or (z1 - thr > z) or (z1 + thr < z):
             if accel_flag == 0:
