@@ -10,7 +10,7 @@ from pydub.playback import play
 import os
 import sqlite3
 
-version = "4.3"
+version = "4.4"
 output_pin = 18
 
 GPIO.setwarnings(False)
@@ -138,7 +138,18 @@ def reboot_raspberry_pi():
 
 def ota_raspberry_pi():
     try:
-        subprocess.run(['git', 'pull', 'origin', 'master'])
+        result = subprocess.run(['git', 'pull', 'origin', 'master'], capture_output=True, text=True)
+        if result.returncode == 0:
+            print("Git pull successful ✅")
+            publish_mqtt(f'R/{topic}', json.dumps({"event": "sGit pull successful"}))
+            time.sleep(10)
+            reboot_raspberry_pi()
+        else:
+            print("Git pull failed ❌")
+            print("Error:", result.stderr)
+            publish_mqtt(f'R/{topic}', json.dumps({"event": "Git pull failed"}))
+            
+
     except Exception as e:
         print(f"Error: {e}")
                     

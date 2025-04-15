@@ -74,7 +74,7 @@ accel_flag = 0
 accel_count = 0
 
 thr = config_data['accel_thr']
-location_publish_interval = config_data['location_publish_interval']
+location_publish_interval = 10 #config_data['location_publish_interval']
 restart_var = 0
 duration = config_data['duration']
 
