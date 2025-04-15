@@ -11,7 +11,6 @@ import adafruit_adxl34x
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 import paho.mqtt.client as mqtt
-from zoneinfo import ZoneInfo
 
 conn = sqlite3.connect('mole.db')
 cursor = conn.cursor()    
@@ -75,7 +74,7 @@ accel_flag = 0
 accel_count = 0
 
 thr = config_data['accel_thr']
-location_publish_interval = 1 #config_data['location_publish_interval']
+location_publish_interval = 1   #config_data['location_publish_interval']
 restart_var = 0
 duration = config_data['duration']
 
@@ -87,7 +86,7 @@ def convert_format(lat, long):
 def on_publish_location():
     try:
         #print("on_publish_location", flush=True)
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "on_publish_location"}))
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "on_publish_location"}))
         global restart_var
         
         command = "AT+CSQ"
@@ -99,7 +98,7 @@ def on_publish_location():
         command = "AT+CGPSINFO"
         ser.write((command + "\r\n").encode())
         response = ser.read_until(b'OK\r\n').decode(errors='ignore')
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(response)}))
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(response)}))
         
         latitude = ""
         longitude = ""
@@ -138,7 +137,7 @@ def on_publish_location():
         
     except Exception as e:
         print(f"An error occurred: {str(e)}", flush=True)
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(e)}))
 
 def find_usb_port(device_path):
     try:
@@ -152,10 +151,10 @@ def find_usb_port(device_path):
 
     except FileNotFoundError:
         print("udevadm command not found. Make sure udev is installed on your system.", flush=True)
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "udevadm command not found. Make sure udev is installed on your system."}))
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "udevadm command not found. Make sure udev is installed on your system."}))
     except Exception as e:
         print(f"An error occurred: {str(e)}", flush=True)
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(e)}))
 
     return None
 
@@ -166,11 +165,11 @@ def find_ttyUSB0(max_ports=10):
             usb_port_index = find_usb_port(device_path)
             if usb_port_index is not None:
                 print(f"/dev/ttyUSB0 is connected to USB port: {usb_port_index}", flush=True)
-                publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "/dev/ttyUSB0 is connected to USB port: {usb_port_index}"}))
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "/dev/ttyUSB0 is connected to USB port: {usb_port_index}"}))
                 return usb_port_index
 
     print("/dev/ttyUSB0 not found on any USB port.", flush=True)
-    publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "/dev/ttyUSB0 not found on any USB port."}))
+    publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "/dev/ttyUSB0 not found on any USB port."}))
     return None
     
 usb_port_index = find_ttyUSB0()
@@ -192,16 +191,13 @@ print(response, flush=True)
 
 
 location_timer = time.time() + location_publish_interval     
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(location_timer)}))
 
-while True :
+while True:
     try:    
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "Try cath start"}))
         conn = sqlite3.connect('mole.db')
         cursor = conn.cursor()
         
-        while True:     
-            publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "while loop start"}))   
+        while True:        
             x, y, z = accelerometer.acceleration
             value = AnalogIn(ads, ADS.P0)
             vol1 = value.voltage * 2
@@ -215,14 +211,13 @@ while True :
             sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z}, bat_vol = {vol1}, temp_vol = {vol2}, power_vol = {vol3} where id = 1;'''
             cursor.execute(sql)                        
             conn.commit()
-            publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "before timezone start"}))   
-            cTime = datetime.now(ZoneInfo("Europe/London"))
-            publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "after time zone"}))   
+            cTime = datetime.now(timezone.utc)
+            publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": cTime.strftime('%Y:%m:%d %H:%M:%S')}))
             
             if (x1 - thr > x) or (x1 + thr < x) or (y1 - thr > y) or (y1 + thr < y) or (z1 - thr > z) or (z1 + thr < z):
                 if accel_flag == 0:
                     print("**** intrp Occur **** ", flush=True)
-                    publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "activity"}))
+                    publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "activity"}))
                     
                     sql = f'''update stat set adxl_status = "1", timestamp = "{cTime.strftime('%Y:%m:%d %H:%M:%S')}" where id = 1;'''
                     cursor.execute(sql)                        
@@ -243,7 +238,7 @@ while True :
                 cursor.execute(sql)                        
                 conn.commit() 
                 
-                publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "inactivity"}))
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "inactivity"}))
                 
             accel_count = accel_count + 1    
             
@@ -253,8 +248,8 @@ while True :
                 location_timer = current_time + location_publish_interval
 
             time.sleep(1)
-            
+
     except Exception as e:
-        print(f"An error occurred: {str(e)}", flush=True)
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(e)}))
         time.sleep(5)
+        # conn.close()
