@@ -11,6 +11,7 @@ import adafruit_adxl34x
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 import paho.mqtt.client as mqtt
+from zoneinfo import ZoneInfo
 
 conn = sqlite3.connect('mole.db')
 cursor = conn.cursor()    
@@ -193,65 +194,67 @@ print(response, flush=True)
 location_timer = time.time() + location_publish_interval     
 publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(location_timer)}))
 
-try:    
-    conn = sqlite3.connect('mole.db')
-    cursor = conn.cursor()
-    
-    while True:        
-        x, y, z = accelerometer.acceleration
-        value = AnalogIn(ads, ADS.P0)
-        vol1 = value.voltage * 2
+while True :
+    try:    
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "Try cath start"}))
+        conn = sqlite3.connect('mole.db')
+        cursor = conn.cursor()
         
-        value = AnalogIn(ads, ADS.P1)
-        vol2 = value.voltage
-        
-        value = AnalogIn(ads, ADS.P2)
-        vol3 = value.voltage
+        while True:     
+            publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "while loop start"}))   
+            x, y, z = accelerometer.acceleration
+            value = AnalogIn(ads, ADS.P0)
+            vol1 = value.voltage * 2
             
-        sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z}, bat_vol = {vol1}, temp_vol = {vol2}, power_vol = {vol3} where id = 1;'''
-        cursor.execute(sql)                        
-        conn.commit()
-        cTime = datetime.now(timezone.utc)
-        
-        if (x1 - thr > x) or (x1 + thr < x) or (y1 - thr > y) or (y1 + thr < y) or (z1 - thr > z) or (z1 + thr < z):
-            if accel_flag == 0:
-                print("**** intrp Occur **** ", flush=True)
-                publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "activity"}))
+            value = AnalogIn(ads, ADS.P1)
+            vol2 = value.voltage
+            
+            value = AnalogIn(ads, ADS.P2)
+            vol3 = value.voltage
                 
-                sql = f'''update stat set adxl_status = "1", timestamp = "{cTime.strftime('%Y:%m:%d %H:%M:%S')}" where id = 1;'''
+            sql = f'''update stat set x_axis = {x}, y_axis = {y}, z_axis = {z}, bat_vol = {vol1}, temp_vol = {vol2}, power_vol = {vol3} where id = 1;'''
+            cursor.execute(sql)                        
+            conn.commit()
+            publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "before timezone start"}))   
+            cTime = datetime.now(ZoneInfo("Europe/London"))
+            publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "after time zone"}))   
+            
+            if (x1 - thr > x) or (x1 + thr < x) or (y1 - thr > y) or (y1 + thr < y) or (z1 - thr > z) or (z1 + thr < z):
+                if accel_flag == 0:
+                    print("**** intrp Occur **** ", flush=True)
+                    publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "activity"}))
+                    
+                    sql = f'''update stat set adxl_status = "1", timestamp = "{cTime.strftime('%Y:%m:%d %H:%M:%S')}" where id = 1;'''
+                    cursor.execute(sql)                        
+                    conn.commit() 
+
+                accel_count = 0
+                x1 = x
+                y1 = y
+                z1 = z
+                accel_flag = 1
+                
+            if accel_flag == 1 and accel_count >= duration :
+                accel_flag = 0
+                accel_count = 0
+                print("**** inactivity Occur **** ", flush=True)
+                    
+                sql = f'''update stat set adxl_status = "0", timestamp = "{cTime.strftime('%Y:%m:%d %H:%M:%S')}" where id = 1;'''
                 cursor.execute(sql)                        
                 conn.commit() 
-
-            accel_count = 0
-            x1 = x
-            y1 = y
-            z1 = z
-            accel_flag = 1
-            
-        if accel_flag == 1 and accel_count >= duration :
-            accel_flag = 0
-            accel_count = 0
-            print("**** inactivity Occur **** ", flush=True)
                 
-            sql = f'''update stat set adxl_status = "0", timestamp = "{cTime.strftime('%Y:%m:%d %H:%M:%S')}" where id = 1;'''
-            cursor.execute(sql)                        
-            conn.commit() 
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "inactivity"}))
+                
+            accel_count = accel_count + 1    
             
-            publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": "inactivity"}))
+            current_time = time.time()
+            if current_time >= location_timer:
+                on_publish_location()
+                location_timer = current_time + location_publish_interval
+
+            time.sleep(1)
             
-        accel_count = accel_count + 1    
-        
-        current_time = time.time()
-        if current_time >= location_timer:
-            on_publish_location()
-            location_timer = current_time + location_publish_interval
-
-        time.sleep(1)
-        
-except Exception as e:
-    print(f"An error occurred: {str(e)}", flush=True)
-    publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
-
-except Exception as e:
-    publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
-    conn.close()
+    except Exception as e:
+        print(f"An error occurred: {str(e)}", flush=True)
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"gps_log": str(e)}))
+        time.sleep(5)
