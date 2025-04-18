@@ -115,15 +115,26 @@ def on_publish_location():
             
         if len(longitude) == 0:
             restart_var = restart_var + 1
-            if restart_var > 5:
+            if restart_var > 50:
                 ser.write("AT+CGPS=0\r\n".encode())
                 x = ser.read_until(b'OK\r\n').decode(errors='ignore')
-                print(f"r {x}", flush=True)
+                print(response, flush=True)
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
+                time.sleep(5)
+
+                ser.write("AT+CGPSNMEA=31\r\n".encode())
+                x = ser.read_until(b'OK\r\n').decode(errors='ignore')
+                print(response, flush=True)
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
+                time.sleep(5)
                 
                 
                 ser.write("AT+CGPS=1\r\n".encode())
                 x = ser.read_until(b'OK\r\n').decode(errors='ignore')
-                print(f"r {x}", flush=True)
+                print(response, flush=True)
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
+                time.sleep(5)
+                
                 restart_var = 0
         
         conn = sqlite3.connect('mole.db')
@@ -185,19 +196,19 @@ ser.write("AT\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
 publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
-time.sleep(1)
+time.sleep(5)
 
 ser.write("AT+CGPSNMEA=31\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
 publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
-time.sleep(1)
+time.sleep(5)
 
 ser.write("AT+CGPS=1\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
 publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
-time.sleep(1)
+time.sleep(5)
 
 
 location_timer = time.time() + location_publish_interval     
