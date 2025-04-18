@@ -148,7 +148,7 @@ time.sleep(15)
 send_at("AT+CGPS?", "Status")
 time.sleep(5)
 
-send_at("AT+CGPS=1,1", "ON")
+send_at("AT+CGPS=1,3", "ON")
 time.sleep(10)
 
 send_at("AT+CGPS?", "Status")
@@ -170,9 +170,10 @@ def on_publish_location():
         #print(f"response {nw} {response}", flush=True)
 
         send_at("AT+CGPS?", "Status")
-        time.sleep(5)
+        time.sleep(2)
         
         command = "AT+CGPSINFO"
+        ser.reset_input_buffer()  # Flush serial input
         ser.write((command + "\r\n").encode())
         response = ser.read_until(b'OK\r\n').decode(errors='ignore')
         publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(response)}))
