@@ -82,76 +82,6 @@ def convert_format(lat, long):
     lat_degrees = int(lat[:2]) + float(lat[2:]) / 60
     long_degrees = int(long[:3]) + float(long[3:]) / 60
     return lat_degrees, long_degrees
-    
-def on_publish_location():
-    try:
-        #print("on_publish_location", flush=True)
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "on_publish_location"}))
-        global restart_var
-        
-        command = "AT+CSQ"
-        ser.write((command + "\r\n").encode())
-        response = ser.read_until(b'OK\r\n').decode(errors='ignore')
-        nw = response.split(':')[1].split(',')[0].strip()
-        #print(f"response {nw} {response}", flush=True)
-        
-        command = "AT+CGPSINFO"
-        ser.write((command + "\r\n").encode())
-        response = ser.read_until(b'OK\r\n').decode(errors='ignore')
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(response)}))
-        
-        latitude = ""
-        longitude = ""
-        output_lat = 0 
-        output_long = 0
-        
-        values = response.strip().split(',')
-        if len(response) > 30:
-            latitude = values[0]
-            longitude = values[2]
-            latitude = latitude.replace("+CGPSINFO: ", "")
-            restart_var = 0
-            output_lat, output_long = convert_format(latitude, longitude)
-            
-        if len(longitude) == 0:
-            restart_var = restart_var + 1
-            publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs restart_var": restart_var}))
-            if restart_var > 50:
-                ser.reset_input_buffer()
-                ser.write("AT+CGPS=0\r\n".encode())
-                x = ser.read_until(b'OK\r\n').decode(errors='ignore')
-                print(response, flush=True)
-                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
-                time.sleep(5)
-
-                ser.reset_input_buffer()
-                ser.write("AT+CGPSNMEA=31\r\n".encode())
-                x = ser.read_until(b'OK\r\n').decode(errors='ignore')
-                print(response, flush=True)
-                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
-                time.sleep(5)
-                
-                ser.reset_input_buffer()
-                ser.write("AT+CGPS=1,3\r\n".encode())
-                x = ser.read_until(b'OK\r\n').decode(errors='ignore')
-                print(response, flush=True)
-                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
-                time.sleep(5)
-
-                restart_var = 0
-        
-        conn = sqlite3.connect('mole.db')
-        cursor = conn.cursor() 
-        sql = f'''update stat set lat = {output_lat}, long = {output_long}, nw_strength = "{nw}" where id = 1;'''
-        cursor.execute(sql)                        
-        conn.commit()
-        conn.close()
-        
-        location_message = {"lat": latitude, "long": longitude}
-        
-    except Exception as e:
-        print(f"An error occurred: {str(e)}", flush=True)
-        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(e)}))
 
 def find_usb_port(device_path):
     try:
@@ -203,6 +133,9 @@ def send_at(cmd, label):
     publish_mqtt(f'R_GPS/{topic}', json.dumps({f"GPS_logs {label}": response}))
     return response
 
+# send_at("AT+CGPSHOT", "CGPSHOT")
+# time.sleep(15)
+
 send_at("AT", "AT")
 time.sleep(5)
 
@@ -215,19 +148,87 @@ time.sleep(15)
 send_at("AT+CGPS?", "Status")
 time.sleep(5)
 
-# send_at("AT+CGPSHOT", "CGPSHOT")
-# time.sleep(15)
-
-send_at("AT+CGPS?", "Status")
-time.sleep(10)
-
-send_at("AT+CGPS=1,3", "ON")
+send_at("AT+CGPS=1,1", "ON")
 time.sleep(10)
 
 send_at("AT+CGPS?", "Status")
 time.sleep(10)
 
 location_timer = time.time() + location_publish_interval     
+
+    
+def on_publish_location():
+    try:
+        #print("on_publish_location", flush=True)
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": "on_publish_location"}))
+        global restart_var
+        
+        command = "AT+CSQ"
+        ser.write((command + "\r\n").encode())
+        response = ser.read_until(b'OK\r\n').decode(errors='ignore')
+        nw = response.split(':')[1].split(',')[0].strip()
+        #print(f"response {nw} {response}", flush=True)
+
+        send_at("AT+CGPS?", "Status")
+        time.sleep(5)
+        
+        command = "AT+CGPSINFO"
+        ser.write((command + "\r\n").encode())
+        response = ser.read_until(b'OK\r\n').decode(errors='ignore')
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(response)}))
+        
+        latitude = ""
+        longitude = ""
+        output_lat = 0 
+        output_long = 0
+        
+        values = response.strip().split(',')
+        if len(response) > 30:
+            latitude = values[0]
+            longitude = values[2]
+            latitude = latitude.replace("+CGPSINFO: ", "")
+            restart_var = 0
+            output_lat, output_long = convert_format(latitude, longitude)
+            
+        if len(longitude) == 0:
+            restart_var = restart_var + 1
+            publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs restart_var": restart_var}))
+            if restart_var > 5000:
+                ser.reset_input_buffer()
+                ser.write("AT+CGPS=0\r\n".encode())
+                x = ser.read_until(b'OK\r\n').decode(errors='ignore')
+                print(response, flush=True)
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
+                time.sleep(5)
+
+                ser.reset_input_buffer()
+                ser.write("AT+CGPSNMEA=31\r\n".encode())
+                x = ser.read_until(b'OK\r\n').decode(errors='ignore')
+                print(response, flush=True)
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
+                time.sleep(5)
+                
+                ser.reset_input_buffer()
+                ser.write("AT+CGPS=1,3\r\n".encode())
+                x = ser.read_until(b'OK\r\n').decode(errors='ignore')
+                print(response, flush=True)
+                publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
+                time.sleep(5)
+
+                restart_var = 0
+        
+        conn = sqlite3.connect('mole.db')
+        cursor = conn.cursor() 
+        sql = f'''update stat set lat = {output_lat}, long = {output_long}, nw_strength = "{nw}" where id = 1;'''
+        cursor.execute(sql)                        
+        conn.commit()
+        conn.close()
+        
+        location_message = {"lat": latitude, "long": longitude}
+        
+    except Exception as e:
+        print(f"An error occurred: {str(e)}", flush=True)
+        publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(e)}))
 
 while True:
     try:    
