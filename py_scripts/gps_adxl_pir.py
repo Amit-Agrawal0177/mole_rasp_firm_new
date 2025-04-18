@@ -115,6 +115,7 @@ def on_publish_location():
             
         if len(longitude) == 0:
             restart_var = restart_var + 1
+            publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs restart_var": restart_var}))
             if restart_var > 50:
                 ser.write("AT+CGPS=0\r\n".encode())
                 x = ser.read_until(b'OK\r\n').decode(errors='ignore')
@@ -134,7 +135,7 @@ def on_publish_location():
                 print(response, flush=True)
                 publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": x}))
                 time.sleep(5)
-                
+
                 restart_var = 0
         
         conn = sqlite3.connect('mole.db')
@@ -195,19 +196,25 @@ ser = serial.Serial(
 ser.write("AT\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
+publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs AT": response}))
 time.sleep(5)
 
-ser.write("AT+CGPSNMEA=31\r\n".encode())
+ser.write("AT+CGPS=0\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
-time.sleep(5)
+publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs OFF": response}))
+time.sleep(15)
+
+ser.write("AT+CGPSHOT\r\n".encode())
+response = ser.read_until(b'OK\r\n').decode(errors='ignore')
+print(response, flush=True)
+publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs CGPSHOT": response}))
+time.sleep(15)
 
 ser.write("AT+CGPS=1\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
+publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs ON": response}))
 time.sleep(5)
 
 
@@ -268,7 +275,7 @@ while True:
                 on_publish_location()
                 location_timer = current_time + location_publish_interval
 
-            time.sleep(1)
+            time.sleep(2)
 
     except Exception as e:
         publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": str(e)}))
