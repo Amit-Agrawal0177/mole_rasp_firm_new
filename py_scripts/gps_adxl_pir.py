@@ -184,10 +184,20 @@ ser = serial.Serial(
 ser.write("AT\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
+publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
+time.sleep(1)
+
+ser.write("AT+CGPSNMEA=31\r\n".encode())
+response = ser.read_until(b'OK\r\n').decode(errors='ignore')
+print(response, flush=True)
+publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
+time.sleep(1)
 
 ser.write("AT+CGPS=1\r\n".encode())
 response = ser.read_until(b'OK\r\n').decode(errors='ignore')
 print(response, flush=True)
+publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs": response}))
+time.sleep(1)
 
 
 location_timer = time.time() + location_publish_interval     
