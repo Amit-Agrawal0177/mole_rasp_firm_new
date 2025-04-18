@@ -148,7 +148,7 @@ time.sleep(15)
 send_at("AT+CGPS?", "Status")
 time.sleep(5)
 
-send_at("AT+CGPS=1,3", "ON")
+send_at("AT+CGPS=1,1", "ON")
 time.sleep(10)
 
 send_at("AT+CGPS?", "Status")
