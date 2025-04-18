@@ -195,34 +195,34 @@ ser = serial.Serial(
     timeout=1
 )
 
-ser.reset_input_buffer()
-ser.write("AT\r\n".encode())
-response = ser.read_until(b'OK\r\n').decode(errors='ignore')
-print(response, flush=True)
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs AT": response}))
+def send_at(cmd, label):
+    ser.reset_input_buffer()  # Flush serial input
+    ser.write((cmd + "\r\n").encode())
+    response = ser.read_until(b'OK\r\n').decode(errors='ignore')
+    print(response, flush=True)
+    publish_mqtt(f'R_GPS/{topic}', json.dumps({f"GPS_logs {label}": response}))
+    return response
+
+send_at("AT", "AT")
 time.sleep(5)
 
-ser.reset_input_buffer()
-ser.write("AT+CGPS=0\r\n".encode())
-response = ser.read_until(b'OK\r\n').decode(errors='ignore')
-print(response, flush=True)
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs OFF": response}))
+send_at("AT+CGPS=0", "OFF")
 time.sleep(35)
 
-ser.reset_input_buffer()
-ser.write("AT+CGPSHOT\r\n".encode())
-response = ser.read_until(b'OK\r\n').decode(errors='ignore')
-print(response, flush=True)
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs CGPSHOT": response}))
-time.sleep(15)
-
-ser.reset_input_buffer()
-ser.write("AT+CGPS=1,3\r\n".encode())
-response = ser.read_until(b'OK\r\n').decode(errors='ignore')
-print(response, flush=True)
-publish_mqtt(f'R_GPS/{topic}', json.dumps({"GPS_logs ON": response}))
+send_at("AT+CGPS?", "Status")
 time.sleep(5)
 
+send_at("AT+CGPSHOT", "CGPSHOT")
+time.sleep(15)
+
+send_at("AT+CGPS?", "Status")
+time.sleep(10)
+
+send_at("AT+CGPS=1,3", "ON")
+time.sleep(10)
+
+send_at("AT+CGPS?", "Status")
+time.sleep(10)
 
 location_timer = time.time() + location_publish_interval     
 
