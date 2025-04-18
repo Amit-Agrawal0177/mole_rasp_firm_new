@@ -206,14 +206,17 @@ def send_at(cmd, label):
 send_at("AT", "AT")
 time.sleep(5)
 
+send_at("AT+CGPS?", "Status")
+time.sleep(5)
+
 send_at("AT+CGPS=0", "OFF")
-time.sleep(35)
+time.sleep(15)
 
 send_at("AT+CGPS?", "Status")
 time.sleep(5)
 
-send_at("AT+CGPSHOT", "CGPSHOT")
-time.sleep(15)
+# send_at("AT+CGPSHOT", "CGPSHOT")
+# time.sleep(15)
 
 send_at("AT+CGPS?", "Status")
 time.sleep(10)
