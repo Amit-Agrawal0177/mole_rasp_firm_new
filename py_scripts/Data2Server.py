@@ -10,7 +10,7 @@ from pydub.playback import play
 import os
 import sqlite3
 
-version = "5.8"
+version = "5.9"
 output_pin = 18
 
 GPIO.setwarnings(False)
