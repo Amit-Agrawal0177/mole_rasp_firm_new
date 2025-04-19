@@ -94,7 +94,7 @@ conn = sqlite3.connect('mole.db')
 cursor = conn.cursor()
 
 while True:
-    time.sleep(2)
+    time.sleep(0.2)
     sql = '''select * from stat order by id; '''
     cursor.execute(sql)
     results = cursor.fetchall()
