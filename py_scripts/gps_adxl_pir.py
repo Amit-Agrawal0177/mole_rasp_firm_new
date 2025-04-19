@@ -195,6 +195,8 @@ def on_publish_location():
         
         latitude = ""
         longitude = ""
+        lat_dir = ""
+        lon_dir = ""
         output_lat = 0 
         output_long = 0
         
