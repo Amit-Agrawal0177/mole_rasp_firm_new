@@ -145,10 +145,16 @@ time.sleep(5)
 send_at("AT+CGPS=0", "OFF")
 time.sleep(15)
 
-send_at("AT+CGPS?", "Status")
+send_at('AT+CGPSURL="supl.google.com:7276"', "CGPSURL")
 time.sleep(5)
 
-send_at("AT+CGPS=1,1", "ON")
+send_at("AT+CGPSSSL=0", "SSL")
+time.sleep(10)
+
+send_at("AT+CGPS=1,3", "ON")
+time.sleep(10)
+
+send_at("AT+CGPSURL?", "CGPSURL")
 time.sleep(10)
 
 send_at("AT+CGPS?", "Status")
