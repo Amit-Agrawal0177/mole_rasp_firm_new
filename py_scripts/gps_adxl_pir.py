@@ -78,10 +78,16 @@ location_publish_interval = 1   #config_data['location_publish_interval']
 restart_var = 0
 duration = config_data['duration']
 
-def convert_format(lat, long):
+def convert_format(lat, lat_dir, lon, lon_dir):
     lat_degrees = int(lat[:2]) + float(lat[2:]) / 60
-    long_degrees = int(long[:3]) + float(long[3:]) / 60
-    return lat_degrees, long_degrees
+    lon_degrees = int(lon[:3]) + float(lon[3:]) / 60
+
+    if lat_dir == 'S':
+        lat_degrees = -lat_degrees
+    if lon_dir == 'W':
+        lon_degrees = -lon_degrees
+
+    return lat_degrees, lon_degrees
 
 def find_usb_port(device_path):
     try:
@@ -194,11 +200,13 @@ def on_publish_location():
         
         values = response.strip().split(',')
         if len(response) > 30:
-            latitude = values[0]
-            longitude = values[2]
-            latitude = latitude.replace("+CGPSINFO: ", "")
+            latitude = values[0].replace("+CGPSINFO: ", "").strip()
+            lat_dir = values[1].strip()
+            longitude = values[2].strip()
+            lon_dir = values[3].strip()
             restart_var = 0
-            output_lat, output_long = convert_format(latitude, longitude)
+
+        output_lat, output_long = convert_format(latitude, lat_dir, longitude, lon_dir)
             
         if len(longitude) == 0:
             restart_var = restart_var + 1
